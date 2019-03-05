@@ -103,7 +103,7 @@ CAGE TSS Enhancer Promoter DE Motifs
 
 \section{Background}\label{background}
 
-Transcriptional regulation is one of the most important aspects of gene expression. Transcription Start Sites (TSSs) are focal points of this process: The TSS act as an integration point for a wide range of molecular cues from surrounding genomic areas to determine transcription and ultimately expression levels. These include proximal factors such as chromatin accessibility, chromatin modification, DNA methylation and transcription factor binding, and distal factors such as enhancer activity and chromatin confirmation \citep{Smale2003, Kadonaga2012, Lenhard2012, Haberle2018}.
+Transcriptional regulation is one of the most important aspects of gene expression. Transcription Start Sites (TSSs) are focal points of this process: The TSS act as an integration point for a wide range of molecular cues from surrounding genomic areas to determine transcription ansd ultimately expression levels. These include proximal factors such as chromatin accessibility, chromatin modification, DNA methylation and transcription factor binding, and distal factors such as enhancer activity and chromatin confirmation \citep{Smale2003, Kadonaga2012, Lenhard2012, Haberle2018}.
 
 Cap Analysis of Gene Expression (CAGE) has emerged as one of the dominant high-throughput assays for studying TSSs \citep{Adiconis2018}. CAGE is based on ``cap trapping'': capturing capped full-length RNAs and sequencing only the first 20-30 nucleotides from the 5'-end, so-called CAGE tags \citep{Mardente2005}. When mapped to a reference genome, the 5'-ends of CAGE tag identify the actual TSS for respective RNA with basepair-level accuracy. Basepair-accurate TSSs identified this way are referred to as CAGE Transcription Start Sites (CTSSs). RNA polymerase rarely initiates from just a single nucleotide: this is manifested in CAGE data by the fact that CTSSs are mostly found in tightly spaced groups on the same strand. The majority of CAGE studies have merged such CTSSs into genomic blocks typically referred to as Tag Clusters (TCs), using a variety of clustering methods (see below). TCs are often interpreted as TSSs in the more general sense, given that most genes have many CTSSs, but only a few TCs that represent a few major transcripts with highly similar CTSSs \citep{Carninci2006, Sandelin2007}. Since the number of mapped CAGE tags in a given TC is indicative of the number of RNAs from that region, the number of CAGE tags falling in given TC can be seen as a measure of expression \citep{Kawaji2014}.
 
@@ -138,9 +138,10 @@ In this workflow, we illustrate how the \texttt{CAGEfightR} package can be used 
 
 This workflow uses data from \emph{``Identification of Gene Transcription Start Sites and Enhancers Responding to Pulmonary Carbon Nanotube Exposure in Vivo''} by Bornholdt \emph{et al} \citep{Bornholdt2017}. This study uses mouse as a model system to investigate how nanotubes affect lung tissue when inhaled. Inhaled nanotubes were previously found to produce a similar response to asbestos, potentially triggering an inflammatory response in the lung tissue leading to drastic changes in gene expression.
 
-The dataset consists of CAGE data from mouse lung biopsies: 5 mice whose lungs were instilled with water (Ctrl) and 6 mice wholes lungs were instilled with nanotubes (Nano), with CTSSs for each sample stored in BigWig-files:
+The dataset consists of CAGE data from mouse lung biopsies: 5 mice whose lungs were instilled with water (Ctrl) and 6 mice wholes lungs were instilled with nanotubes (Nano), with CTSSs for each sample stored in BigWig-files, shown in Table \ref{tab:ExperimentOverview}:
 
 \begin{table}[htbp]
+\caption{\label{tab:ExperimentOverview} Overview of samples in the nanotube exposure experiment.}
 \centering
 \begin{tabledata}{@{}rrr@{}}
 \header Group & Biological Replicates &\\
@@ -239,10 +240,15 @@ Before starting the analysis, we recommend gathering all information (Filenames,
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{data}\NormalTok{(nanotubes)}
-\KeywordTok{kable}\NormalTok{(nanotubes)}
+\KeywordTok{kable}\NormalTok{(nanotubes, }
+      \DataTypeTok{caption =} \StringTok{"The initial design matrix for the nanotubes experiment"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:studyDesign}The initial design matrix for the nanotubes experiment}
+\centering
 \begin{tabular}{l|l|l|l|l}
 \hline
   & Class & Name & BigWigPlus & BigWigMinus\\
@@ -270,6 +276,7 @@ N17 & Nano & N17 & mm9.CAGE\_RSAM\_NANO\_17.plus.bw & mm9.CAGE\_RSAM\_NANO\_17.m
 N18 & Nano & N18 & mm9.CAGE\_CCLF\_NANO\_18.plus.bw & mm9.CAGE\_CCLF\_NANO\_18.minus.bw\\
 \hline
 \end{tabular}
+\end{table}
 
 \subsubsection{Importing CTSSs}\label{importing-ctsss}
 
@@ -923,7 +930,14 @@ A good general strategy for quickly generating genome browser plots is to first 
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/simpleTSS-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/simpleTSS-1} 
+
+}
+
+\caption{Genome browser example of TSS candidate}\label{fig:simpleTSS}
+\end{figure}
 
 The top track shows the pooled CTSS signal and the middle track shows the identified TC with the thick bar indicating the TSS peak (the overall most used CTSSs within the TC). The bottom track shows the known transcript model at this genomic location. In this case, the CAGE-defined TSS corresponds well to the annotation.
 
@@ -992,7 +1006,14 @@ We can also plot the first enhancer:
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/simpleEnhancer-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/simpleEnhancer-1} 
+
+}
+
+\caption{Genome browser example of enhancer candidate}\label{fig:simpleEnhancer}
+\end{figure}
 
 Here we see the bidirectional pattern characteristic of active enhancers. The bidirectional cluster is seen in the middle track, with the midpoint in thick marking the maximally balanced point within the bidirectional cluster.
 
@@ -1021,12 +1042,21 @@ Then we use \emph{\href{https://CRAN.R-project.org/package=ggplot2}{ggplot2}} to
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/plotTxTypes-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/plotTxTypes1-1} 
+
+}
+
+\caption{Number of clusters within each annotation category}\label{fig:plotTxTypes1}
+\end{figure}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{# Expression of clusters}
-\KeywordTok{ggplot}\NormalTok{(cluster_info, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{txType, }\DataTypeTok{y=}\KeywordTok{log2}\NormalTok{(score/}\KeywordTok{ncol}\NormalTok{(RSE)), }\DataTypeTok{fill=}\NormalTok{clusterType)) +}
+\KeywordTok{ggplot}\NormalTok{(cluster_info, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{txType, }
+                         \DataTypeTok{y=}\KeywordTok{log2}\NormalTok{(score/}\KeywordTok{ncol}\NormalTok{(RSE)), }
+                         \DataTypeTok{fill=}\NormalTok{clusterType)) +}
 \StringTok{    }\KeywordTok{geom_violin}\NormalTok{(}\DataTypeTok{alpha=}\FloatTok{0.75}\NormalTok{, }\DataTypeTok{draw_quantiles =} \KeywordTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)) +}
 \StringTok{    }\KeywordTok{scale_fill_colorblind}\NormalTok{(}\StringTok{"Cluster type"}\NormalTok{) +}
 \StringTok{    }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x=}\StringTok{"Cluster annotation"}\NormalTok{, }\DataTypeTok{y=}\StringTok{"log2(TPM)"}\NormalTok{) +}
@@ -1034,7 +1064,14 @@ Then we use \emph{\href{https://CRAN.R-project.org/package=ggplot2}{ggplot2}} to
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/plotTxTypes-2} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/plotTxTypes2-1} 
+
+}
+
+\caption{Expression of clusters within each annotation category}\label{fig:plotTxTypes2}
+\end{figure}
 
 We find that TSSs at annotated promoters are generally highly expressed. Most novel TSSs are expressed at lower levels, except for some TSSs in 5'-UTRs. Enhancers are expressed at much lower levels than TSSs.
 
@@ -1085,7 +1122,14 @@ We can then plot the bimodal distribution of IQRs. We use a zoom-in panel to hig
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/TSSShapes-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/TSSShapes-1} 
+
+}
+
+\caption{Bimodal distribution of Interquartile Ranges (IQRs) of highly expressed TSSs}\label{fig:TSSShapes}
+\end{figure}
 
 We see most TSSs are either below or above 10 bp IQR (dashed line), so we use this cutoff to classify TSSs into Sharp and Broad:
 
@@ -1117,7 +1161,7 @@ We can now investigate the core promoters sequences of the two classes of TSSs. 
 \end{Highlighting}
 \end{Shaded}
 
-This returns a \texttt{DNAStringSet}-object which we can plot as a sequence logo \citep{Manetti2015} via the \emph{\href{https://CRAN.R-project.org/package=ggseqplot}{ggseqplot}} package\citep{Wagih2017}:
+This returns a \texttt{DNAStringSet}-object which we can plot as a sequence logo \citep{Manetti2015} via the \emph{\href{https://CRAN.R-project.org/package=ggseqlogo}{ggseqlogo}} package\citep{Wagih2017}:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1132,7 +1176,14 @@ This returns a \texttt{DNAStringSet}-object which we can plot as a sequence logo
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/ggseqlogo-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/ggseqlogo-1} 
+
+}
+
+\caption{Sequence logos of core promoter regions of Sharp and Broad classes of TSSs}\label{fig:ggseqlogo}
+\end{figure}
 
 As expected, we observe that Sharp TSSs tend to have a stronger TATA-box upstream of the TSS compared to Broad TSSs.
 
@@ -1305,7 +1356,14 @@ We can then visualize the correlation patterns across a genomic region, here usi
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/browseLinks-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/browseLinks-1} 
+
+}
+
+\caption{Genome browser example of TSS-enhancer link candidates}\label{fig:browseLinks}
+\end{figure}
 
 The top track shows the strength of correlations between 3 TSSs around the Atp1b1 gene. The highest correlation is seen between the upstream TSS and the most distal enhancer.
 
@@ -1522,7 +1580,14 @@ The returned \texttt{GRanges} contains the the location, number of enhancers and
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/browseStretches-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/browseStretches-1} 
+
+}
+
+\caption{Genome browser example of enhancer stretch}\label{fig:browseStretches}
+\end{figure}
 
 This stretch is composed of at least 5 enhancers, each of which shows bidirectional transcription.
 
@@ -1556,7 +1621,14 @@ A very useful first representation is a Principal Components Analysis (PCA) plot
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/PCA-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/PCA-1} 
+
+}
+
+\caption{PCA-plot of variance stabilized expression.}\label{fig:PCA}
+\end{figure}
 
 We observe that PC2 separates the samples according to the experimental group (control vs nano). However, PC1 also separates samples into two groups. This is suggestive of an unwanted yet systematic effect on expression, often referred as a \emph{batch effect}. We do not want to mistake this unwanted variation for biological variation when we test for differential expression. To prevent this, we can include the batch information as a factor in the final model. Let first define the batch variable:
 
@@ -1575,10 +1647,14 @@ We observe that PC2 separates the samples according to the experimental group (c
 \NormalTok{RSE %>%}
 \StringTok{    }\KeywordTok{colData}\NormalTok{() %>%}
 \StringTok{    }\KeywordTok{subset}\NormalTok{(}\DataTypeTok{select=}\KeywordTok{c}\NormalTok{(Class, Batch)) %>%}
-\StringTok{    }\NormalTok{kable}
+\StringTok{    }\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Design matrix after adding new batch covariate."}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:batchVar}Design matrix after adding new batch covariate.}
+\centering
 \begin{tabular}{l|l|l}
 \hline
   & Class & Batch\\
@@ -1606,6 +1682,7 @@ N17 & Nano & A\\
 N18 & Nano & A\\
 \hline
 \end{tabular}
+\end{table}
 
 An alternative to manually defining the batch variable, tools such as \emph{\href{https://bioconductor.org/packages/3.8/sva}{sva}} and \emph{\href{https://bioconductor.org/packages/3.8/RUVSeq}{RUVSeq}} can be used to estimate unknown batch effects from the data.
 
@@ -1663,11 +1740,20 @@ We can now extract estimated effects (log fold changes) and statistical signific
 \CommentTok{# Show the top hits}
 \NormalTok{res %>%}
 \StringTok{    }\KeywordTok{top_n}\NormalTok{(-}\DecValTok{10}\NormalTok{, padj) %>%}
-\StringTok{    }\NormalTok{dplyr::}\KeywordTok{select}\NormalTok{(}\DataTypeTok{cluster=}\NormalTok{row, clusterType, txType, baseMean, log2FoldChange, padj) %>%}
-\StringTok{    }\NormalTok{kable}
+\StringTok{    }\NormalTok{dplyr::}\KeywordTok{select}\NormalTok{(}\DataTypeTok{cluster=}\NormalTok{row, }
+                  \NormalTok{clusterType, }
+                  \NormalTok{txType, }
+                  \NormalTok{baseMean, }
+                  \NormalTok{log2FoldChange, }
+                  \NormalTok{padj) %>%}
+\StringTok{    }\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Top differentially expressed TSS and enhancer candidates"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:results}Top differentially expressed TSS and enhancer candidates}
+\centering
 \begin{tabular}{l|l|l|r|r|r}
 \hline
 cluster & clusterType & txType & baseMean & log2FoldChange & padj\\
@@ -1688,11 +1774,12 @@ chr9:120212846-120213294;+ & TSS & promoter & 316.0582 & 2.404706 & 0\\
 \hline
 chr11:83222553-83222887;+ & TSS & proximal & 228.5560 & 6.098838 & 0\\
 \hline
-chr12:105649334-105649472;+ & TSS & CDS & 175.1364 & 3.345412 & 0\\
+chr12:105649334-105649472;+ & TSS & CDS & 175.1364 & 3.345411 & 0\\
 \hline
 chr19:56668148-56668332;+ & TSS & CDS & 103.8795 & -2.254371 & 0\\
 \hline
 \end{tabular}
+\end{table}
 
 It always a good idea to inspect a few diagnostics plot to make sure the \texttt{DESeq2} analysis was succesful. One such example is an MA-plot (another useful plot is p-value histogram):
 
@@ -1705,7 +1792,14 @@ It always a good idea to inspect a few diagnostics plot to make sure the \texttt
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/MAplot-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/diagnosticPlot-1} 
+
+}
+
+\caption{Diagnostic MA plot of the differential expression analysis}\label{fig:diagnosticPlot}
+\end{figure}
 
 We can see that we overall find more differentially expressed TSSs compared to enhancers, which is expected since they are also more highly expressed. Many enhancers are filtered away for the final DESeq2 analysis (The ``Independent Filtering'' Step), as their expression level is too low to detect any DE: This increases power for detecting DE at higher expression levels.
 
@@ -1789,7 +1883,14 @@ Let us redo the PCA-plot, to see the global effect of the batch effect correctio
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/correctedPCA-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/correctedPCA-1} 
+
+}
+
+\caption{PCA-plot of batch corrected expression.}\label{fig:correctedPCA}
+\end{figure}
 
 Now Nano and Ctrl are separated along the first principal component (compared to the second principle component before correction).
 
@@ -1831,7 +1932,14 @@ Finally, we can plot the batch-corrected expression profiles of each individual 
 ## `stat_bindot()` using `bins = 30`. Pick better value with `binwidth`.
 \end{verbatim}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/ploTop10-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/ploTop10-1} 
+
+}
+
+\caption{Expression profile of top 10 differentially expressed enhancer candidates.}\label{fig:ploTop10}
+\end{figure}
 
 \subsubsection{Enrichment of DNA-binding motifs}\label{enrichment-of-dna-binding-motifs}
 
@@ -1894,18 +2002,18 @@ Finally we can do a simple Fisher's Exact test to see if a motif co-occurs more 
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{# 2x2 table for fishers}
-\KeywordTok{table}\NormalTok{(}\DataTypeTok{Hnf4alpha=}\KeywordTok{motifMatches}\NormalTok{(motif_hits)[,}\StringTok{"MA0099.2"}\NormalTok{],}
-      \DataTypeTok{DE=}\NormalTok{res$padj<}\FloatTok{0.05}\NormalTok{) %>%}
+\KeywordTok{table}\NormalTok{(}\DataTypeTok{FOSJUN =} \KeywordTok{motifMatches}\NormalTok{(motif_hits)[,}\StringTok{"MA0099.2"}\NormalTok{],}
+      \DataTypeTok{DE =} \NormalTok{res$padj <}\StringTok{ }\FloatTok{0.05}\NormalTok{) %>%}
 \StringTok{    }\KeywordTok{print}\NormalTok{() %>%}
 \StringTok{    }\KeywordTok{fisher.test}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-##          DE
-## Hnf4alpha FALSE  TRUE
-##     FALSE 22144  5596
-##     TRUE   2961   988
+##        DE
+## FOSJUN  FALSE  TRUE
+##   FALSE 22144  5596
+##   TRUE   2961   988
 \end{verbatim}
 
 \begin{verbatim}
@@ -1924,7 +2032,7 @@ Finally we can do a simple Fisher's Exact test to see if a motif co-occurs more 
 
 A significant odds ratio above 1 indicate that FOS::JUN is a candidate transcription factor (or, more technically correct, a candidate transcription factor dimer) in regulation of the nanotube response. This is not surprising given that FOS::JUN is part of the TNF-alpha inflammatory pathway (see more below).
 
-Of course, this is a just a very quick and simple analysis of motif enrichment. One could easily have used different regions around TSSs and enhancers and/or split the enrichment analysis between TSSs and enhancers. Other bioconductor packages like \emph{\href{https://bioconductor.org/packages/3.8/PWMenrich}{PWMenrich}}, \emph{\href{https://bioconductor.org/packages/3.8/rGADEM}{rGADEM}} and \emph{\href{https://bioconductor.org/packages/3.8/motifcounter}{motifcounter}} implements more advanced statistical methods for calculating enrichment of known motifs. \emph{\href{https://bioconductor.org/packages/3.8/rGADEM}{rGADEM}}, \emph{\href{https://bioconductor.org/packages/3.8/BCRANK}{BCRANK}} and \emph{\href{https://bioconductor.org/packages/3.8/motifRG}{motifRG}} can also be used to calculate enrichment of novel motifs, sometimes refered to as \emph{motif discovery}.
+Of course, this is a just a very quick and simple analysis of motif enrichment. One could easily have used different regions around TSSs and enhancers and/or split the enrichment analysis between TSSs and enhancers. Other bioconductor packages like \emph{\href{https://bioconductor.org/packages/3.8/PWMEnrich}{PWMEnrich}}, \emph{\href{https://bioconductor.org/packages/3.8/rGADEM}{rGADEM}} and \emph{\href{https://bioconductor.org/packages/3.8/motifcounter}{motifcounter}} implements more advanced statistical methods for calculating enrichment of known motifs. \emph{\href{https://bioconductor.org/packages/3.8/rGADEM}{rGADEM}}, \emph{\href{https://bioconductor.org/packages/3.8/BCRANK}{BCRANK}} and \emph{\href{https://bioconductor.org/packages/3.8/motifRG}{motifRG}} can also be used to calculate enrichment of novel motifs, sometimes refered to as \emph{motif discovery}.
 
 \subsubsection{Gene-level differential expression}\label{gene-level-differential-expression}
 
@@ -2064,10 +2172,14 @@ We can the both report the overall summary of differential gene expression, and 
 \CommentTok{# Global summary}
 \NormalTok{dt %>%}\StringTok{ }
 \StringTok{    }\NormalTok{summary %>%}\StringTok{ }
-\StringTok{    }\NormalTok{kable}
+\StringTok{    }\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption=}\StringTok{"Global summary of differentially expressed genes."}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:limmaSummary}Global summary of differentially expressed genes.}
+\centering
 \begin{tabular}{l|r|r|r}
 \hline
   & (Intercept) & BatchB & ClassNano\\
@@ -2079,16 +2191,21 @@ NotSig & 463 & 8278 & 10373\\
 Up & 13053 & 2717 & 1689\\
 \hline
 \end{tabular}
+\end{table}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{# Inspect top htis}
 \KeywordTok{topTable}\NormalTok{(eb, }\DataTypeTok{coef=}\StringTok{"ClassNano"}\NormalTok{) %>%}
 \StringTok{    }\NormalTok{dplyr::}\KeywordTok{select}\NormalTok{(symbol, nClusters, AveExpr, logFC, adj.P.Val) %>%}
-\StringTok{    }\KeywordTok{kable}\NormalTok{()}
+\StringTok{    }\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption=}\StringTok{"Top differentially expressed genes."}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:limmaTop}Top differentially expressed genes.}
+\centering
 \begin{tabular}{l|l|r|r|r|r}
 \hline
   & symbol & nClusters & AveExpr & logFC & adj.P.Val\\
@@ -2114,6 +2231,7 @@ Up & 13053 & 2717 & 1689\\
 20361 & Sema7a & 1 & 7.612236 & 1.473680 & 5.9e-06\\
 \hline
 \end{tabular}
+\end{table}
 
 \subsubsection{Enrichment of GO- and KEGG-terms}\label{enrichment-of-go--and-kegg-terms}
 
@@ -2128,10 +2246,14 @@ In addition to looking at individual top genes, we can look at how the different
 
 \CommentTok{# Show top hits}
 \KeywordTok{topGO}\NormalTok{(GO, }\DataTypeTok{ontology =} \StringTok{"BP"}\NormalTok{, }\DataTypeTok{number =} \DecValTok{10}\NormalTok{) %>%}
-\StringTok{    }\KeywordTok{kable}\NormalTok{()}
+\StringTok{    }\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption=}\StringTok{"Top enriched or depleted GO-terms."}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:goanna}Top enriched or depleted GO-terms.}
+\centering
 \begin{tabular}{l|l|l|r|r|r|r|r}
 \hline
   & Term & Ont & N & Up & Down & P.Up & P.Down\\
@@ -2157,6 +2279,7 @@ GO:0097530 & granulocyte migration & BP & 115 & 45 & 6 & 0 & 0.9934479\\
 GO:0050900 & leukocyte migration & BP & 275 & 79 & 21 & 0 & 0.9859699\\
 \hline
 \end{tabular}
+\end{table}
 
 And similary for KEGG terms:
 
@@ -2167,10 +2290,14 @@ And similary for KEGG terms:
 
 \CommentTok{# Show top hits}
 \KeywordTok{topKEGG}\NormalTok{(KEGG, }\DataTypeTok{number =} \DecValTok{10}\NormalTok{) %>%}
-\StringTok{    }\NormalTok{knitr::}\KeywordTok{kable}\NormalTok{()}
+\StringTok{    }\NormalTok{knitr::}\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption=}\StringTok{"Top enriched of depleted KEGG-terms."}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:kegga}Top enriched of depleted KEGG-terms.}
+\centering
 \begin{tabular}{l|l|r|r|r|r|r}
 \hline
   & Pathway & N & Up & Down & P.Up & P.Down\\
@@ -2196,6 +2323,7 @@ path:mmu00982 & Drug metabolism - cytochrome P450 & 46 & 5 & 15 & 0.7266916 & 0.
 path:mmu04630 & JAK-STAT signaling pathway & 112 & 29 & 7 & 0.0001453 & 0.9785951\\
 \hline
 \end{tabular}
+\end{table}
 
 Both analyses indicate that genes related to the inflammatory response and defense response are upregulated following nanotube exposure. This supports the hypothesis that nanotube induces a response similar to asbestos.
 
@@ -2215,7 +2343,14 @@ KEGG-terms represents well defined pathways. We can use the \emph{\href{https://
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/pathview-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/pathview-1} 
+
+}
+
+\caption{Detailed view of differentially expressed gene in the KEGG TNF-signalling pathway.}\label{fig:pathview}
+\end{figure}
 
 \subsubsection{Differential TSS Usage}\label{differential-tss-usage}
 
@@ -2249,7 +2384,7 @@ We use \texttt{CAGEfightR} to remove TSSs that are not expressed as more than 10
 ## Removed 8001 out of 24500 regions (32.7%)
 \end{verbatim}
 
-We can only do differential TSS usage analysis of genes with multiple TSSs. We can generate an overview of common this is:
+We can only do differential TSS usage analysis of genes with multiple TSSs. A useful first visualization is therefore to see how many genes use more than one TSS:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -2265,7 +2400,14 @@ We can only do differential TSS usage analysis of genes with multiple TSSs. We c
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/TSSstructure-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/TSSstructure-1} 
+
+}
+
+\caption{Overview of alternative TSS usage within genes.}\label{fig:TSSstructure}
+\end{figure}
 
 While most genes utilize only a single TSSs, many genes use two or more TSSs.
 
@@ -2329,10 +2471,14 @@ Now we can look at differential TSS usage at two-levels: Whether an individual T
 \begin{Highlighting}[]
 \NormalTok{dtu_TSSs <-}\StringTok{ }\KeywordTok{topSpliceDGE}\NormalTok{(ds, }\DataTypeTok{test =} \StringTok{"exon"}\NormalTok{)}
 \NormalTok{dplyr::}\KeywordTok{select}\NormalTok{(dtu_TSSs, txType, geneID, symbol, logFC, FDR) %>%}
-\StringTok{    }\NormalTok{kable}
+\StringTok{    }\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Top differentially used TSSs"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:dtuTSS}Top differentially used TSSs}
+\centering
 \begin{tabular}{l|l|l|l|r|r}
 \hline
   & txType & geneID & symbol & logFC & FDR\\
@@ -2358,17 +2504,25 @@ chr11:116395161-116395462;+ & proximal & 20698 & Sphk1 & 1.7471930 & 1e-07\\
 chr2:91496305-91496449;+ & intron & 228359 & Arhgap1 & 0.9809491 & 3e-07\\
 \hline
 \end{tabular}
+\end{table}
 
-The interpretation of log fold changes here is slightly different from before: These log fold changes are relative to the overall log fold change for all TSSs in that gene. We can then genes (Gene-level differential TSS usage):
+The interpretation of log fold changes here is slightly different from before: These log fold changes are relative to the overall log fold change for all TSSs in that gene.
+
+Then we can look at results for each gene (Gene-level differential TSS usage):
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{dtu_genes <-}\StringTok{ }\KeywordTok{topSpliceDGE}\NormalTok{(ds, }\DataTypeTok{test =} \StringTok{"Simes"}\NormalTok{)}
 \NormalTok{dplyr::}\KeywordTok{select}\NormalTok{(dtu_genes, geneID, symbol, NExons, FDR) %>%}
-\StringTok{    }\KeywordTok{kable}\NormalTok{(}\DataTypeTok{row.names =} \OtherTok{FALSE}\NormalTok{)}
+\StringTok{    }\KeywordTok{kable}\NormalTok{(}\DataTypeTok{row.names =} \OtherTok{FALSE}\NormalTok{, }
+          \DataTypeTok{caption =} \StringTok{"Top genes showing any differential TSS usage."}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{table}[t]
+
+\caption{\label{tab:dtuGene}Top genes showing any differential TSS usage.}
+\centering
 \begin{tabular}{l|l|r|r}
 \hline
 geneID & symbol & NExons & FDR\\
@@ -2394,6 +2548,7 @@ geneID & symbol & NExons & FDR\\
 228359 & Arhgap1 & 2 & 2e-07\\
 \hline
 \end{tabular}
+\end{table}
 
 We see that the two lists agree, which is not suprising given that the gene-level results are obtained by aggregating TSS-level p-values across genes.
 
@@ -2411,7 +2566,14 @@ We can look at closer at the TSS usage in on of the top hits: We can vizualize t
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/heatmap-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/heatmap-1} 
+
+}
+
+\caption{Heatmap showing expression of TSSs within Fblim1}\label{fig:heatmap}
+\end{figure}
 
 Fblim1 has 3 TSSs, with 2 of them being used in the Ctrl samples, while the Nano samples also uses the chr4:141154044-141154185;- TSS, as also seen in the TSS-level table above. While a heatmap is useful for seeing expression changes, a genome browser view is better to inspect the genomic context of each TSSs:
 
@@ -2495,7 +2657,14 @@ Fblim1 has 3 TSSs, with 2 of them being used in the Ctrl samples, while the Nano
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{CAGEWorkflow_files/figure-latex/dtubrowser-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{CAGEWorkflow_files/figure-latex/dtubrowser-1} 
+
+}
+
+\caption{Genome-browser example of differential TSS usage within Fblim1}\label{fig:dtubrowser}
+\end{figure}
 
 The Fblim1 gene uses two annotated TSSs, but the Nano samples also uses a novel intronic TSS.
 

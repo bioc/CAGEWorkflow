@@ -24,7 +24,7 @@ output: BiocWorkflowTools::f1000_article
 
 # Background
 
-Transcriptional regulation is one of the most important aspects of gene expression. Transcription Start Sites (TSSs) are focal points of this process: The TSS act as an integration point for a wide range of molecular cues from surrounding genomic areas to determine transcription and ultimately expression levels. These include proximal factors such as chromatin accessibility, chromatin modification, DNA methylation and transcription factor binding, and distal factors such as enhancer activity and chromatin confirmation [@Smale2003; @Kadonaga2012; @Lenhard2012; @Haberle2018].
+Transcriptional regulation is one of the most important aspects of gene expression. Transcription Start Sites (TSSs) are focal points of this process: The TSS act as an integration point for a wide range of molecular cues from surrounding genomic areas to determine transcription ansd ultimately expression levels. These include proximal factors such as chromatin accessibility, chromatin modification, DNA methylation and transcription factor binding, and distal factors such as enhancer activity and chromatin confirmation [@Smale2003; @Kadonaga2012; @Lenhard2012; @Haberle2018].
 
 Cap Analysis of Gene Expression (CAGE) has emerged as one of the dominant high-throughput assays for studying TSSs [@Adiconis2018]. CAGE is based on "cap trapping": capturing  capped full-length RNAs and sequencing only the first 20-30 nucleotides from the 5'-end, so-called CAGE tags [@Mardente2005]. When mapped to a reference genome, the 5’-ends of CAGE tag identify the actual TSS for respective RNA with basepair-level accuracy. Basepair-accurate TSSs identified this way are referred to as CAGE Transcription Start Sites (CTSSs). RNA polymerase rarely initiates from just a single nucleotide: this is manifested in CAGE data by the fact that CTSSs are mostly found in tightly spaced groups on the same strand. The majority of CAGE studies have merged such CTSSs into genomic blocks typically referred to as Tag Clusters (TCs), using a variety of clustering methods (see below). TCs are often interpreted as TSSs in the more general sense, given that most genes have many CTSSs, but only a few TCs that represent a few major transcripts with highly similar CTSSs [@Carninci2006; @Sandelin2007]. Since the number of mapped CAGE tags in a given TC is indicative of the number of RNAs from that region, the number of CAGE tags falling in given TC can be seen as a measure of expression [@Kawaji2014].
 
@@ -56,7 +56,9 @@ In this workflow, we illustrate how the `CAGEfightR` package can be used to orch
 
 This workflow uses data from *“Identification of Gene Transcription Start Sites and Enhancers Responding to Pulmonary Carbon Nanotube Exposure in Vivo”* by Bornholdt _et al_ [@Bornholdt2017]. This study uses mouse as a model system to investigate how nanotubes affect lung tissue when inhaled. Inhaled nanotubes were previously found to produce a similar response to asbestos, potentially triggering an inflammatory response in the lung tissue leading to drastic changes in gene expression. 
 
-The dataset consists of CAGE data from mouse lung biopsies: 5 mice whose lungs were instilled with water (Ctrl) and 6 mice wholes lungs were instilled with nanotubes (Nano), with CTSSs for each sample stored in BigWig-files:
+The dataset consists of CAGE data from mouse lung biopsies: 5 mice whose lungs were instilled with water (Ctrl) and 6 mice wholes lungs were instilled with nanotubes (Nano), with CTSSs for each sample stored in BigWig-files, shown in Table \@ref(tab:ExperimentOverview):
+
+: (\#tab:ExperimentOverview) Overview of samples in the nanotube exposure experiment.
 
 |  Group|  Biological Replicates|
 |--:|--:|--:|
@@ -141,7 +143,8 @@ Before starting the analysis, we recommend gathering all information (Filenames,
 
 ```{r studyDesign}
 data(nanotubes)
-kable(nanotubes)
+kable(nanotubes, 
+      caption = "The initial design matrix for the nanotubes experiment")
 ```
 
 ### Importing CTSSs
@@ -316,7 +319,7 @@ tx_track <- GeneRegionTrack(txdb,
 
 A good general strategy for quickly generating genome browser plots is to first define a region of interest, and then only plotting data within that region using `subsetByOverlaps`. The following code demonstrates this using the first TSS:
 
-```{r simpleTSS, fig.width=5, fig.height=5}
+```{r simpleTSS, fig.width=5, fig.height=5, fig.cap='Genome browser example of TSS candidate'}
 # Extract 100 bp around the first TSS.
 plot_region <- RSE %>% 
     rowRanges %>% 
@@ -352,7 +355,7 @@ The top track shows the pooled CTSS signal and the middle track shows the identi
 
 We can also plot the first enhancer:
 
-```{r simpleEnhancer, fig.width=5, fig.height=5}
+```{r simpleEnhancer, fig.width=5, fig.height=5, fig.cap='Genome browser example of enhancer candidate'}
 # Make plotting region
 plot_region <- RSE %>% 
     rowRanges %>% 
@@ -399,16 +402,20 @@ cluster_info <- RSE %>%
 
 Then we use `r BiocStyle::CRANpkg("ggplot2")` to plot the number and expression levels of clusters in each annotation category:
 
-```{r plotTxTypes, fig.width=5, fig.height=3}
+```{r plotTxTypes1, fig.width=5, fig.height=3, fig.cap="Number of clusters within each annotation category"}
 # Number of clusters
 ggplot(cluster_info, aes(x=txType, fill=clusterType)) +
 	geom_bar(alpha=0.75, position="dodge", color="black") +
 	scale_fill_colorblind("Cluster type") +
 	labs(x="Cluster annotation", y="Frequency") +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
 
+```{r plotTxTypes2, fig.width=5, fig.height=3, fig.cap="Expression of clusters within each annotation category"}
 # Expression of clusters
-ggplot(cluster_info, aes(x=txType, y=log2(score/ncol(RSE)), fill=clusterType)) +
+ggplot(cluster_info, aes(x=txType, 
+                         y=log2(score/ncol(RSE)), 
+                         fill=clusterType)) +
 	geom_violin(alpha=0.75, draw_quantiles = c(0.25, 0.50, 0.75)) +
 	scale_fill_colorblind("Cluster type") +
 	labs(x="Cluster annotation", y="log2(TPM)") +
@@ -436,7 +443,7 @@ highTSSs <- calcShape(highTSSs,
 ```
 
 We can then plot the bimodal distribution of IQRs. We use a zoom-in panel to highlight the distinction between the two classes:
-```{r TSSShapes, fig.width=5, fig.height=3}
+```{r TSSShapes, fig.width=5, fig.height=3, fig.cap="Bimodal distribution of Interquartile Ranges (IQRs) of highly expressed TSSs"}
 highTSSs %>%
 	rowData %>%
 	as.data.frame %>%
@@ -467,8 +474,8 @@ promoter_seqs <- highTSSs %>%
 	getSeq(bsg, .)
 ```
 
-This returns a `DNAStringSet`-object which we can plot as a sequence logo [@Manetti2015] via the `r BiocStyle::CRANpkg("ggseqplot")` package[@Wagih2017]:
-```{r ggseqlogo, fig.width=5, fig.height=2.5}
+This returns a `DNAStringSet`-object which we can plot as a sequence logo [@Manetti2015] via the `r BiocStyle::CRANpkg("ggseqlogo")` package[@Wagih2017]:
+```{r ggseqlogo, fig.width=5, fig.height=2.5, fig.cap='Sequence logos of core promoter regions of Sharp and Broad classes of TSSs'}
 promoter_seqs %>%
 	as.character %>%
 	split(rowData(highTSSs)$shape) %>%
@@ -518,7 +525,7 @@ cor_links <- cor_links[order(cor_links$estimate, decreasing = TRUE)]
 ```
 
 We can then visualize the correlation patterns across a genomic region, here using the most correlated TSS-enhancer link:
-```{r browseLinks, fig.width=5, fig.height=5}
+```{r browseLinks, fig.width=5, fig.height=5, fig.cap="Genome browser example of TSS-enhancer link candidates"}
 # Make plotting region
 plot_region <- cor_links[1] %>% 
     anchors %>% 
@@ -564,7 +571,7 @@ Several studies have found that groups or stretches of closely spaced enhancers 
 
 `CAGEfightR` can detect such _enhancer stretches_ based on CAGE data. `CAGEfightR` groups nearby enhancers into groups and calculates the average pairwise correlation between them, shown below (again using Kendall's tau):
 
-```{r findStretches, fig.width=5, fig.height=5}
+```{r findStretches}
 # Subset to only enhancers
 Enhancers <- subset(RSE, clusterType == "Enhancer")
 
@@ -591,7 +598,7 @@ stretches
 
 The returned `GRanges` contains the the location, number of enhancers and average correlation for each stretch. Stretches are found in a variatity of context, some being intergenic and other spanning various parts of genes. Let us plot one of the top intergenic stretches:
 
-```{r browseStretches, fig.width=5, fig.height=5}
+```{r browseStretches, fig.width=5, fig.height=5, fig.cap="Genome browser example of enhancer stretch"}
 # Make plotting region
 plot_region <- stretches["chr17:26666593-26675486"] + 1000
 
@@ -646,7 +653,7 @@ vst_blind <- vst(dds_blind, blind = TRUE)
 
 A very useful first representation is a Principal Components Analysis (PCA) plot summarizing variance across the entire experiment:
 
-```{r PCA, fig.width=4, fig.height=4}
+```{r PCA, fig.width=4, fig.height=4, fig.cap="PCA-plot of variance stabilized expression."}
 plotPCA(vst_blind, "Class")
 ```
 
@@ -666,7 +673,7 @@ RSE$Batch <- factor(batch_var)
 RSE %>%
     colData() %>%
     subset(select=c(Class, Batch)) %>%
-    kable
+    kable(caption = "Design matrix after adding new batch covariate.")
 ```
 
 An alternative to manually defining the batch variable, tools such as `r BiocStyle::Biocpkg("sva")` and `r BiocStyle::Biocpkg("RUVSeq")` can be used to estimate unknown batch effects from the data.
@@ -698,13 +705,18 @@ res <- results(dds,
 # Show the top hits
 res %>%
     top_n(-10, padj) %>%
-    dplyr::select(cluster=row, clusterType, txType, baseMean, log2FoldChange, padj) %>%
-    kable
+    dplyr::select(cluster=row, 
+                  clusterType, 
+                  txType, 
+                  baseMean, 
+                  log2FoldChange, 
+                  padj) %>%
+    kable(caption = "Top differentially expressed TSS and enhancer candidates")
 ```
 
 It always a good idea to inspect a few diagnostics plot to make sure the `DESeq2` analysis was succesful. One such example is an MA-plot (another useful plot is p-value histogram):
 
-```{r MAplot, fig.width=5, fig.height=5}
+```{r diagnosticPlot, fig.width=5, fig.height=5, fig.cap="Diagnostic MA plot of the differential expression analysis"}
 ggplot(res, aes(x=log2(baseMean), y=log2FoldChange, color=padj < 0.05)) +
 	geom_point(alpha=0.25) +
 	geom_hline(yintercept = 0, linetype="dashed", alpha=0.75) +
@@ -748,7 +760,7 @@ assay(RSE, "ComBat") <- ComBat(dat=assay(vst_guided),
 
 Let us redo the PCA-plot, to see the global effect of the batch effect correction:
 
-```{r correctedPCA, fig.width=4, fig.height=4}
+```{r correctedPCA, fig.width=4, fig.height=4, fig.cap='PCA-plot of batch corrected expression.'}
 # Overwrite assay 
 assay(vst_guided) <- assay(RSE, "ComBat")
 
@@ -781,7 +793,7 @@ tidyEnhancers <- assay(RSE, "ComBat")[top10,] %>%
 ```
 
 Finally, we can plot the batch-corrected expression profiles of each individual enhancer:
-```{r ploTop10, fig.width=6, fig.height=5}
+```{r ploTop10, fig.width=6, fig.height=5, fig.cap="Expression profile of top 10 differentially expressed enhancer candidates."}
 ggplot(tidyEnhancers, aes(x=Class, y=Expression, fill=Class)) +
 	geom_dotplot(stackdir="center", binaxis="y", dotsize=3) +
 	facet_wrap(~Enhancer, ncol=2, scales="free_y")
@@ -826,15 +838,15 @@ Finally we can do a simple Fisher's Exact test to see if a motif co-occurs more 
 
 ```{r fishers}
 # 2x2 table for fishers
-table(Hnf4alpha=motifMatches(motif_hits)[,"MA0099.2"],
-      DE=res$padj<0.05) %>%
+table(FOSJUN = motifMatches(motif_hits)[,"MA0099.2"],
+      DE = res$padj < 0.05) %>%
     print() %>%
     fisher.test()
 ```
 
 A significant odds ratio above 1 indicate that FOS::JUN is a candidate transcription factor (or, more technically correct, a candidate transcription factor dimer) in regulation of the nanotube response. This is not surprising given that FOS::JUN is part of the TNF-alpha inflammatory pathway (see more below).
 
-Of course, this is a just a very quick and simple analysis of motif enrichment. One could easily have used different regions around TSSs and enhancers and/or split the enrichment analysis between TSSs and enhancers. Other bioconductor packages like `r BiocStyle::Biocpkg("PWMenrich")`, `r BiocStyle::Biocpkg("rGADEM")` and `r BiocStyle::Biocpkg("motifcounter")` implements more advanced statistical methods for calculating enrichment of known motifs. `r BiocStyle::Biocpkg("rGADEM")`, `r BiocStyle::Biocpkg("BCRANK")` and `r BiocStyle::Biocpkg("motifRG")` can also be used to calculate enrichment of novel motifs, sometimes refered to as _motif discovery_.
+Of course, this is a just a very quick and simple analysis of motif enrichment. One could easily have used different regions around TSSs and enhancers and/or split the enrichment analysis between TSSs and enhancers. Other bioconductor packages like `r BiocStyle::Biocpkg("PWMEnrich")`, `r BiocStyle::Biocpkg("rGADEM")` and `r BiocStyle::Biocpkg("motifcounter")` implements more advanced statistical methods for calculating enrichment of known motifs. `r BiocStyle::Biocpkg("rGADEM")`, `r BiocStyle::Biocpkg("BCRANK")` and `r BiocStyle::Biocpkg("motifRG")` can also be used to calculate enrichment of novel motifs, sometimes refered to as _motif discovery_.
 
 ### Gene-level differential expression
 
@@ -907,12 +919,14 @@ We can the both report the overall summary of differential gene expression, and 
 # Global summary
 dt %>% 
     summary %>% 
-    kable
+    kable(caption="Global summary of differentially expressed genes.")
+```
 
+```{r limmaTop}
 # Inspect top htis
 topTable(eb, coef="ClassNano") %>%
     dplyr::select(symbol, nClusters, AveExpr, logFC, adj.P.Val) %>%
-    kable()
+    kable(caption="Top differentially expressed genes.")
 ```
 
 ### Enrichment of GO- and KEGG-terms
@@ -927,7 +941,7 @@ GO <- goana(eb, coef = "ClassNano", species = "Mm", trend = TRUE)
 
 # Show top hits
 topGO(GO, ontology = "BP", number = 10) %>%
-	kable()
+	kable(caption="Top enriched or depleted GO-terms.")
 ```
 
 And similary for KEGG terms:
@@ -938,14 +952,14 @@ KEGG <- kegga(eb, coef="ClassNano", species = "Mm", trend = TRUE)
 
 # Show top hits
 topKEGG(KEGG, number = 10) %>%
-	knitr::kable()
+	knitr::kable(caption="Top enriched of depleted KEGG-terms.")
 ```
 
 Both analyses indicate that genes related to the inflammatory response and defense response are upregulated following nanotube exposure. This supports the hypothesis that nanotube induces a response similar to asbestos.
 
 KEGG-terms represents well defined pathways. We can use the `r BiocStyle::Biocpkg("pathview")` package[@Luo2013] to investigate in more detail the genes in a given enriched pathway. For example, we can look at regulation of gene in the TNF-signalling pathway:
 
-```{r pathview, message = FALSE, fig.width=6, fig.height=6}
+```{r pathview, message = FALSE, fig.width=6, fig.height=6, fig.cap="Detailed view of differentially expressed gene in the KEGG TNF-signalling pathway."}
 # Visualize a KEGG
 DE_genes <- Filter(function(x) x != 0, dt[, "ClassNano"])
 
@@ -975,9 +989,9 @@ RSE_filtered <- RSE %>%
 	                    minSamples=5)
 ```
 
-We can only do differential TSS usage analysis of genes with multiple TSSs. We can generate an overview of common this is:
+We can only do differential TSS usage analysis of genes with multiple TSSs. A useful first visualization is therefore to see how many genes use more than one TSS:
 
-```{r TSSstructure, fig.width=5, fig.height=2.5}
+```{r TSSstructure, fig.width=5, fig.height=2.5, fig.cap="Overview of alternative TSS usage within genes."}
 RSE_filtered %>% 
     rowData %>% 
     as.data.frame %>% 
@@ -1029,21 +1043,24 @@ Now we can look at differential TSS usage at two-levels: Whether an individual T
 ```{r dtuTSS}
 dtu_TSSs <- topSpliceDGE(ds, test = "exon")
 dplyr::select(dtu_TSSs, txType, geneID, symbol, logFC, FDR) %>%
-    kable
+    kable(caption = "Top differentially used TSSs")
 ```
 
-The interpretation of log fold changes here is slightly different from before: These log fold changes are relative to the overall log fold change for all TSSs in that gene. We can then genes (Gene-level differential TSS usage):
+The interpretation of log fold changes here is slightly different from before: These log fold changes are relative to the overall log fold change for all TSSs in that gene. 
+
+Then we can look at results for each gene (Gene-level differential TSS usage):
 ```{r dtuGene}
 dtu_genes <- topSpliceDGE(ds, test = "Simes")
 dplyr::select(dtu_genes, geneID, symbol, NExons, FDR) %>%
-    kable(row.names = FALSE)
+    kable(row.names = FALSE, 
+          caption = "Top genes showing any differential TSS usage.")
 ```
 
 We see that the two lists agree, which is not suprising given that the gene-level results are obtained by aggregating TSS-level p-values across genes.
 
 We can look at closer at the TSS usage in on of the top hits: We can vizualize the batch-corrected expression (See above) of each TSS in the Fblim1 gene via a heatmap:
 
-```{r heatmap, fig.width=3, fig.height=4}
+```{r heatmap, fig.width=3, fig.height=4, fig.cap="Heatmap showing expression of TSSs within Fblim1"}
 RSE_filtered %>%
 	subset(geneID == "74202") %>%
 	assay("ComBat") %>%
@@ -1055,7 +1072,7 @@ RSE_filtered %>%
 
 Fblim1 has 3 TSSs, with 2 of them being used in the Ctrl samples, while the Nano samples also uses the chr4:141154044-141154185;- TSS, as also seen in the TSS-level table above. While a heatmap is useful for seeing expression changes, a genome browser view is better to inspect the genomic context of each TSSs:
 
-```{r dtubrowser, fig.width=5, fig.height=5}
+```{r dtubrowser, fig.width=5, fig.height=5, fig.cap="Genome-browser example of differential TSS usage within Fblim1"}
 # Define plot area
 plot_region <- subset(RSE_filtered, geneID == "74202") %>%
 	rowRanges %>%
