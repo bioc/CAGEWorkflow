@@ -99,7 +99,7 @@ CAGE TSS Enhancer Promoter DE Motifs
 
 \textbf{Bioconductor version}: 3.8
 
-\textbf{CAGEfightR version}: 1.2.0
+\textbf{CAGEfightR version}: 1.3.0
 
 \section{Background}\label{background}
 
@@ -1117,7 +1117,7 @@ We can then plot the bimodal distribution of IQRs. We use a zoom-in panel to hig
 \StringTok{    }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{IQR)) +}
 \StringTok{    }\KeywordTok{geom_histogram}\NormalTok{(}\DataTypeTok{binwidth=}\DecValTok{1}\NormalTok{, }\DataTypeTok{fill=}\StringTok{"hotpink"}\NormalTok{, }\DataTypeTok{alpha=}\FloatTok{0.75}\NormalTok{) +}
 \StringTok{    }\KeywordTok{geom_vline}\NormalTok{(}\DataTypeTok{xintercept =} \DecValTok{10}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{, }\DataTypeTok{alpha=}\FloatTok{0.75}\NormalTok{, }\DataTypeTok{color=}\StringTok{"black"}\NormalTok{) +}
-\StringTok{    }\KeywordTok{facet_zoom}\NormalTok{(}\DataTypeTok{x=}\NormalTok{IQR <=}\StringTok{ }\DecValTok{100}\NormalTok{) +}
+\StringTok{    }\KeywordTok{facet_zoom}\NormalTok{(}\DataTypeTok{xlim =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{100}\NormalTok{)) +}
 \StringTok{    }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x=}\StringTok{"10-90% IQR"}\NormalTok{, }\DataTypeTok{y=}\StringTok{"Frequency"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -1559,6 +1559,9 @@ The returned \texttt{GRanges} contains the the location, number of enhancers and
 
 \begin{verbatim}
 ## Splitting pooled signal by strand...
+\end{verbatim}
+
+\begin{verbatim}
 ## Preparing track...
 \end{verbatim}
 
@@ -1774,7 +1777,7 @@ chr9:120212846-120213294;+ & TSS & promoter & 316.0582 & 2.404706 & 0\\
 \hline
 chr11:83222553-83222887;+ & TSS & proximal & 228.5560 & 6.098838 & 0\\
 \hline
-chr12:105649334-105649472;+ & TSS & CDS & 175.1364 & 3.345411 & 0\\
+chr12:105649334-105649472;+ & TSS & CDS & 175.1364 & 3.345412 & 0\\
 \hline
 chr19:56668148-56668332;+ & TSS & CDS & 103.8795 & -2.254371 & 0\\
 \hline
@@ -2621,6 +2624,9 @@ Fblim1 has 3 TSSs, with 2 of them being used in the Ctrl samples, while the Nano
 
 \begin{verbatim}
 ## Splitting pooled signal by strand...
+\end{verbatim}
+
+\begin{verbatim}
 ## Preparing track...
 \end{verbatim}
 

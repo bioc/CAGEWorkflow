@@ -450,7 +450,7 @@ highTSSs %>%
 	ggplot(aes(x=IQR)) +
 	geom_histogram(binwidth=1, fill="hotpink", alpha=0.75) +
 	geom_vline(xintercept = 10, linetype="dashed", alpha=0.75, color="black") +
-	facet_zoom(x=IQR <= 100) +
+    facet_zoom(xlim = c(0,100)) +
 	labs(x="10-90% IQR", y="Frequency")
 ```
 
