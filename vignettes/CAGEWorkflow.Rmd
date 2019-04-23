@@ -5,7 +5,7 @@ author:
     affiliation: Biotech Research and Innovation Centre and Section for Computational and RNA Biology, University of Copenhagen
   - name: Albin Sandelin
     affiliation: Biotech Research and Innovation Centre and Section for Computational and RNA Biology, University of Copenhagen
-abstract: Cap Analysis of Gene Expression (CAGE) is one of the most popular 5’-end sequencing methods. In a single experiment, CAGE can be used to locate and quantify the expression of both Transcription Start Sites (TSSs) and enhancers. This is workflow is a case study on how to use the CAGEfightR package to orchestrate analysis of CAGE data within the Bioconductor project. This workflow starts from BigWig-files and covers both basic CAGE analyses such as identifying, quantifying and annotating TSSs and enhancers, advanced analysis such as finding interacting TSS-enhancer pairs and enhancer clusters, to differential expression analysis and alternative TSS usage. R-code, discussion and references are intertwined to help provide guidelines for future CAGE studies of the same kind.
+abstract: Cap Analysis of Gene Expression (CAGE) is one of the most popular 5’-end sequencing methods. In a single experiment, CAGE can be used to locate and quantify the expression of both Transcription Start Sites (TSSs) and enhancers. This workflow is a case study on how to use the CAGEfightR package to orchestrate analysis of CAGE data within the Bioconductor project. This workflow starts from BigWig-files and covers both basic CAGE analyses such as identifying, quantifying and annotating TSSs and enhancers, advanced analysis such as finding interacting TSS-enhancer pairs and enhancer clusters, to differential expression analysis and alternative TSS usage. R-code, discussion and references are intertwined to help provide guidelines for future CAGE studies of the same kind.
 keywords: CAGE TSS Enhancer Promoter DE Motifs 
 bibliography: citations.bib
 vignette: >
@@ -24,7 +24,7 @@ output: BiocWorkflowTools::f1000_article
 
 # Background
 
-Transcriptional regulation is one of the most important aspects of gene expression. Transcription Start Sites (TSSs) are focal points of this process: The TSS act as an integration point for a wide range of molecular cues from surrounding genomic areas to determine transcription ansd ultimately expression levels. These include proximal factors such as chromatin accessibility, chromatin modification, DNA methylation and transcription factor binding, and distal factors such as enhancer activity and chromatin confirmation [@Smale2003; @Kadonaga2012; @Lenhard2012; @Haberle2018].
+Transcriptional regulation is one of the most important aspects of gene expression. Transcription Start Sites (TSSs) are focal points of this process: The TSS act as an integration point for a wide range of molecular cues from surrounding genomic areas to determine transcription and ultimately expression levels. These include proximal factors such as chromatin accessibility, chromatin modification, DNA methylation and transcription factor binding, and distal factors such as enhancer activity and chromatin confirmation [@Smale2003; @Kadonaga2012; @Lenhard2012; @Haberle2018].
 
 Cap Analysis of Gene Expression (CAGE) has emerged as one of the dominant high-throughput assays for studying TSSs [@Adiconis2018]. CAGE is based on "cap trapping": capturing  capped full-length RNAs and sequencing only the first 20-30 nucleotides from the 5'-end, so-called CAGE tags [@Mardente2005]. When mapped to a reference genome, the 5’-ends of CAGE tag identify the actual TSS for respective RNA with basepair-level accuracy. Basepair-accurate TSSs identified this way are referred to as CAGE Transcription Start Sites (CTSSs). RNA polymerase rarely initiates from just a single nucleotide: this is manifested in CAGE data by the fact that CTSSs are mostly found in tightly spaced groups on the same strand. The majority of CAGE studies have merged such CTSSs into genomic blocks typically referred to as Tag Clusters (TCs), using a variety of clustering methods (see below). TCs are often interpreted as TSSs in the more general sense, given that most genes have many CTSSs, but only a few TCs that represent a few major transcripts with highly similar CTSSs [@Carninci2006; @Sandelin2007]. Since the number of mapped CAGE tags in a given TC is indicative of the number of RNAs from that region, the number of CAGE tags falling in given TC can be seen as a measure of expression [@Kawaji2014].
 
@@ -65,7 +65,7 @@ The dataset consists of CAGE data from mouse lung biopsies: 5 mice whose lungs w
 |  Ctrl|  5 mice|
 |  Nano|  6 mice|
 
-The data is aquired via the `nanotubes` data package:
+The data is acquired via the `nanotubes` data package:
 
 ```{r nanotubes}
 library(nanotubes)
@@ -137,7 +137,7 @@ The workflow is divided into 3 parts covering different parts of a typical CAGE 
 
 ## Part 1: Locating, quantifying and annotating TSSs and enhancers
 
-`CAGEfightR` starts analysis from CTSSs, which is the number of CAGE tag 5'-ends mapping to each basepair in the genome. CTSSs are normally stored as either BED-files or BigWig-files. `CAGEfightR` works on BigWig-files, since these can be efficiently imported and allow for random access.
+`CAGEfightR` starts analysis from CTSSs, which is the number of CAGE tag 5'-ends mapping to each basepair (bp) in the genome. CTSSs are normally stored as either BED-files or BigWig-files. `CAGEfightR` works on BigWig-files, since these can be efficiently imported and allow for random access.
 
 Before starting the analysis, we recommend gathering all information (Filenames, groups, batches, preparation data, etc.) about the samples to be analyzed in a single `data.frame`, sometimes called the _design matrix_. `CAGEfightR` can keep track of the design matrix throughout the analysis:
 
@@ -191,7 +191,7 @@ assay(CTSSs, "counts") %>%
 
 ### Unidirectional and bidirectional clustering for finding TSS and enhancer candidates:
 
-`CAGEfightR` finds clusters by calcuting the pooled CTSS signal across all samples: We first normalize CTSSs count in each sample to Tags-Per-Million (TPM) values, and them sum TPM values across samples: 
+`CAGEfightR` finds clusters by calculating the pooled CTSS signal across all samples: We first normalize CTSSs count in each sample to Tags-Per-Million (TPM) values, and them sum TPM values across samples: 
 
 ```{r pooled}
 CTSSs <- CTSSs %>%
@@ -239,7 +239,7 @@ BCs <- subsetBySupport(BCs, inputAssay="counts", unexpressed=0, minSamples=4)
 
 After having located unidirectional and bidirectional clusters, we can annotate them according to known transcript and gene models. These types of annotation are store via `TxDb`-objects in Bioconductor. Here we will simply use UCSC transcripts included in the `r BiocStyle::Biocpkg("TxDb.Mmusculus.UCSC.mm9.knownGene")` package, but the `CAGEfightR` vignette includes examples of how to obtain a `TxDb` object from other sources (GFF/GTF files, AnnotationHub, etc.).
 
-Starting with the TSS candidates, we can not only annotate a TSS with overlapping transcripts, but also in what _part_ of a transcript a TSS lies by using a hierachical annotation scheme. As some TSSs might be very wide, we only use the TSS peak for annotation purposes:
+Starting with the TSS candidates, we can not only annotate a TSS with overlapping transcripts, but also in what _part_ of a transcript a TSS lies by using a hierarchical annotation scheme. As some TSSs might be very wide, we only use the TSS peak for annotation purposes:
 
 ```{r TSSannotation}
 # Annotate with transcript IDs
@@ -261,7 +261,7 @@ BCs <- assignTxType(BCs, txModels = txdb, swap="thick")
 Enhancers <- subset(BCs, txType %in% c("intergenic", "intron"))
 ```
 
-This leaves almost 10.000 enhancer candidates for analysis.
+This leaves almost 10000 enhancer candidates for analysis.
 
 ### Merging into a single dataset
 
@@ -464,7 +464,7 @@ rowData(highTSSs)$shape <- ifelse(rowData(highTSSs)$IQR < 10, "Sharp", "Broad")
 table(rowData(highTSSs)$shape)
 ```
 
-We can now investigate the core promoters sequences of the two classes of TSSs. We first need to extract the sequences for each TSS: We defince this as the TSS peak -40/+10 bp and extract them from using the `r BiocStyle::Biocpkg("BSgenome.Mmusculus.UCSC.mm10")` genome package:
+We can now investigate the core promoters sequences of the two classes of TSSs. We first need to extract the sequences for each TSS: We define this as the TSS peak -40/+10 bp and extract them from using the `r BiocStyle::Biocpkg("BSgenome.Mmusculus.UCSC.mm10")` genome package:
 
 ```{r BSGenome}
 promoter_seqs <- highTSSs %>%
@@ -567,7 +567,7 @@ The top track shows the strength of correlations between 3 TSSs around the Atp1b
 
 ### Finding stretches of enhancers
 
-Several studies have found that groups or stretches of closely spaced enhancers tend to show different chromatin characteristics and functions compared to singleton enhancers. Such groups of are often refered to as "super enhancers" or "stretch enhancers"[@Pott2015].
+Several studies have found that groups or stretches of closely spaced enhancers tend to show different chromatin characteristics and functions compared to singleton enhancers. Such groups of are often referred to as "super enhancers" or "stretch enhancers"[@Pott2015].
 
 `CAGEfightR` can detect such _enhancer stretches_ based on CAGE data. `CAGEfightR` groups nearby enhancers into groups and calculates the average pairwise correlation between them, shown below (again using Kendall's tau):
 
@@ -596,7 +596,7 @@ stretches <- stretches[order(stretches$aveCor, decreasing=TRUE)]
 stretches
 ```
 
-The returned `GRanges` contains the the location, number of enhancers and average correlation for each stretch. Stretches are found in a variatity of context, some being intergenic and other spanning various parts of genes. Let us plot one of the top intergenic stretches:
+The returned `GRanges` contains the the location, number of enhancers and average correlation for each stretch. Stretches are found in a variety of context, some being intergenic and other spanning various parts of genes. Let us plot one of the top intergenic stretches:
 
 ```{r browseStretches, fig.width=5, fig.height=5, fig.cap="Genome browser example of enhancer stretch"}
 # Make plotting region
@@ -680,7 +680,7 @@ An alternative to manually defining the batch variable, tools such as `r BiocSty
 
 ### Cluster-level differential expression
 
-Following our short EDA above, we are ready to specificy the final design for the experiment: We want to take into account both the Class and Batch of samples:
+Following our short EDA above, we are ready to specify the final design for the experiment: We want to take into account both the Class and Batch of samples:
 
 ```{r finalDesign}
 # Specify design
@@ -714,7 +714,7 @@ res %>%
     kable(caption = "Top differentially expressed TSS and enhancer candidates")
 ```
 
-It always a good idea to inspect a few diagnostics plot to make sure the `DESeq2` analysis was succesful. One such example is an MA-plot (another useful plot is p-value histogram):
+It always a good idea to inspect a few diagnostics plot to make sure the `DESeq2` analysis was successful. One such example is an MA-plot (another useful plot is p-value histogram):
 
 ```{r diagnosticPlot, fig.width=5, fig.height=5, fig.cap="Diagnostic MA plot of the differential expression analysis"}
 ggplot(res, aes(x=log2(baseMean), y=log2FoldChange, color=padj < 0.05)) +
@@ -846,7 +846,7 @@ table(FOSJUN = motifMatches(motif_hits)[,"MA0099.2"],
 
 A significant odds ratio above 1 indicate that FOS::JUN is a candidate transcription factor (or, more technically correct, a candidate transcription factor dimer) in regulation of the nanotube response. This is not surprising given that FOS::JUN is part of the TNF-alpha inflammatory pathway (see more below).
 
-Of course, this is a just a very quick and simple analysis of motif enrichment. One could easily have used different regions around TSSs and enhancers and/or split the enrichment analysis between TSSs and enhancers. Other bioconductor packages like `r BiocStyle::Biocpkg("PWMEnrich")`, `r BiocStyle::Biocpkg("rGADEM")` and `r BiocStyle::Biocpkg("motifcounter")` implements more advanced statistical methods for calculating enrichment of known motifs. `r BiocStyle::Biocpkg("rGADEM")`, `r BiocStyle::Biocpkg("BCRANK")` and `r BiocStyle::Biocpkg("motifRG")` can also be used to calculate enrichment of novel motifs, sometimes refered to as _motif discovery_.
+Of course, this is a just a very quick and simple analysis of motif enrichment. One could easily have used different regions around TSSs and enhancers and/or split the enrichment analysis between TSSs and enhancers. Other Bioconductor packages like `r BiocStyle::Biocpkg("PWMEnrich")`, `r BiocStyle::Biocpkg("rGADEM")` and `r BiocStyle::Biocpkg("motifcounter")` implements more advanced statistical methods for calculating enrichment of known motifs. `r BiocStyle::Biocpkg("rGADEM")`, `r BiocStyle::Biocpkg("BCRANK")` and `r BiocStyle::Biocpkg("motifRG")` can also be used to calculate enrichment of novel motifs, sometimes referred to as _motif discovery_.
 
 ### Gene-level differential expression
 
@@ -872,7 +872,7 @@ The result is `RangedSummarizedExperiment` where the ranges are a `GRangesList` 
 rowRanges(GSE["100038347",])
 ```
 
-The geneIDs in this case is Entrez ID (which is widely used by Bioconductor packages). We can translate these systematic IDs into more human-readable symbols using the `r BiocStyle::Biocpkg("org.Mm.eg.db")` annotation package:
+The gene IDs in this case is Entrez ID (which is widely used by Bioconductor packages). We can translate these systematic IDs into more human-readable symbols using the `r BiocStyle::Biocpkg("org.Mm.eg.db")` annotation package:
 
 ```{r symbols}
 # Translate symbols
@@ -886,7 +886,7 @@ Having obtained a gene-level count matrix we can now perform gene-level DE analy
 
 __Note__: `limma` is a powerful tool for DE analysis of count-based data. However, since it depends on log transforming counts, it is not always suitable for analyzing datasets where features have very low counts. This is usually not a problem for gene-level analysis, but can be a problem for enhancers, which are generally very lowly expressed.
 
-Similarly to the `DESeq2` analysis, we first build the necesarry object and then normalize the expression values:
+Similarly to the `DESeq2` analysis, we first build the necessary object and then normalize the expression values:
 
 ```{r limmaNorm}
 # Create DGElist object
@@ -897,7 +897,7 @@ dge <- DGEList(counts=assay(GSE, "counts"),
 dge <- calcNormFactors(dge)
 ```
 
-Then we apply the voom-transformation to model the mean-variance trend, for which we also need to specificy the design matrix (in this case the design must contain both wanted and unwanted effects!). The same design matrix is then used for fitting the gene-wise models:
+Then we apply the voom-transformation to model the mean-variance trend, for which we also need to specify the design matrix (in this case the design must contain both wanted and unwanted effects!). The same design matrix is then used for fitting the gene-wise models:
 
 ```{r limmaVoom}
 # Design matrix
@@ -944,7 +944,7 @@ topGO(GO, ontology = "BP", number = 10) %>%
 	kable(caption="Top enriched or depleted GO-terms.")
 ```
 
-And similary for KEGG terms:
+And similarly for KEGG terms:
 
 ```{r kegga}
 # Find enriched KEGG-terms
@@ -975,7 +975,7 @@ grid.raster(png::readPNG("mmu04668.pathview.png"))
 
 In the above two analyses we looked at whether an individual TSSs or an individual gene was changing expression between experimental groups. However, we might also want to look at whether a gene show differential TSS usage: whether a gene uses different TSSs under different conditions. This problem is similar to differential splicing in RNA-Seq, but looking at TSSs rather than isoforms[@Soneson2016]. Here we will use the `edgeR` `diffSpliceDGE` method to find differential TSS usage, although many other packages could have been used, for example `diffSplice` from `limma`, `r BiocStyle::Biocpkg("DEXSeq")`, `r BiocStyle::Biocpkg("DRIMSeq")`, etc.. 
 
-Intutively, `diffSpliceDGE` tests whether a given TSSs show the same change as other TSSs in the same gene, indicating that TSSs are differentially regulated across the gene. This does however not take into account the relative composition of a given TSSs, e.g. whether a TSS increases from 1%-2% of gene output or 25%-50%. A useful preprocessing step is therefore to filter out TSSs making only a small contribution to total gene expression before analyses.
+Intuitively, `diffSpliceDGE` tests whether a given TSSs show the same change as other TSSs in the same gene, indicating that TSSs are differentially regulated across the gene. This does however not take into account the relative composition of a given TSSs, e.g. whether a TSS increases from 1%-2% of gene output or 25%-50%. A useful preprocessing step is therefore to filter out TSSs making only a small contribution to total gene expression before analyses.
 
 We use `CAGEfightR` to remove TSSs that are not expressed as more than 10% of total gene expression in more than 5 samples (We first remove TSSs not assigned to genes):
 
@@ -1056,9 +1056,9 @@ dplyr::select(dtu_genes, geneID, symbol, NExons, FDR) %>%
           caption = "Top genes showing any differential TSS usage.")
 ```
 
-We see that the two lists agree, which is not suprising given that the gene-level results are obtained by aggregating TSS-level p-values across genes.
+We see that the two lists agree, which is not surprising given that the gene-level results are obtained by aggregating TSS-level p-values across genes.
 
-We can look at closer at the TSS usage in on of the top hits: We can vizualize the batch-corrected expression (See above) of each TSS in the Fblim1 gene via a heatmap:
+We can look at closer at the TSS usage in on of the top hits: We can visualize the batch-corrected expression (See above) of each TSS in the Fblim1 gene via a heatmap:
 
 ```{r heatmap, fig.width=3, fig.height=4, fig.cap="Heatmap showing expression of TSSs within Fblim1"}
 RSE_filtered %>%
@@ -1116,7 +1116,7 @@ One aspect not covered in this workflow is the utility of CAGE data (and 5’-en
 
 # Author information
 
-MS and AS concieved the project and wrote the paper.
+MS and AS conceived the project and wrote the paper.
 
 # Competing interests
 
