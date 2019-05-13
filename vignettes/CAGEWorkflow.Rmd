@@ -1,19 +1,35 @@
 ---
 title: "A step-by-step guide to analyzing CAGE data using R/Bioconductor"
-author: 
-  - name: Malte Thodberg
-    affiliation: Biotech Research and Innovation Centre and Section for Computational and RNA Biology, University of Copenhagen
-  - name: Albin Sandelin
-    affiliation: Biotech Research and Innovation Centre and Section for Computational and RNA Biology, University of Copenhagen
-abstract: Cap Analysis of Gene Expression (CAGE) is one of the most popular 5’-end sequencing methods. In a single experiment, CAGE can be used to locate and quantify the expression of both Transcription Start Sites (TSSs) and enhancers. This workflow is a case study on how to use the CAGEfightR package to orchestrate analysis of CAGE data within the Bioconductor project. This workflow starts from BigWig-files and covers both basic CAGE analyses such as identifying, quantifying and annotating TSSs and enhancers, advanced analysis such as finding interacting TSS-enhancer pairs and enhancer clusters, to differential expression analysis and alternative TSS usage. R-code, discussion and references are intertwined to help provide guidelines for future CAGE studies of the same kind.
-keywords: CAGE TSS Enhancer Promoter DE Motifs 
+author:
+- affiliation: Biotech Research and Innovation Centre and Section for Computational
+    and RNA Biology, University of Copenhagen
+  name: Malte Thodberg
+- affiliation: Biotech Research and Innovation Centre and Section for Computational
+    and RNA Biology, University of Copenhagen
+  name: Albin Sandelin
+Maintainer: Malte Thodberg <maltethodberg@gmail.com>
+URL: https://github.com/MalteThodberg/CAGEfWorkflow
+BugReports: https://github.com/MalteThodberg/CAGEWorkflow/issues
 bibliography: citations.bib
-vignette: >
+output:
+  BiocStyle::html_document: default
+  BiocWorkflowTools::f1000_article: default
+keywords: CAGE TSS Enhancer Promoter DE Motifs
+header-includes: \usepackage{float}
+abstract: Cap Analysis of Gene Expression (CAGE) is one of the most popular 5’-end
+  sequencing methods. In a single experiment, CAGE can be used to locate and quantify
+  the expression of both Transcription Start Sites (TSSs) and enhancers. This workflow
+  is a case study on how to use the CAGEfightR package to orchestrate analysis of
+  CAGE data within the Bioconductor project. This workflow starts from BigWig-files
+  and covers both basic CAGE analyses such as identifying, quantifying and annotating
+  TSSs and enhancers, advanced analysis such as finding interacting TSS-enhancer pairs
+  and enhancer clusters, to differential expression analysis and alternative TSS usage.
+  R-code, discussion and references are intertwined to help provide guidelines for
+  future CAGE studies of the same kind.
+vignette: |
   %\VignetteIndexEntry{CAGEWorkflow}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-output: BiocWorkflowTools::f1000_article
-
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 **R version**: `r R.version.string`
@@ -78,6 +94,7 @@ This workflow uses a large number of R-packages: Bioconductor packages are prima
 ```{r packages, results='hide', message=FALSE, warning=FALSE}
 # CRAN packages for data manipulation and plotting
 library(knitr)
+library(kableExtra)
 library(pheatmap)
 library(ggseqlogo)
 library(viridis)
@@ -113,6 +130,14 @@ library(org.Mm.eg.db)
 library(JASPAR2016)
 ```
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.pos = 'H',
+                      fig.retina = 1,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
 We also set some script-wide settings for later convenience:
 ```{r scriptwise, results='hide', message=FALSE, warning=FALSE}
 # Rename these for easier access
@@ -133,7 +158,7 @@ The workflow is divided into 3 parts covering different parts of a typical CAGE 
 
 2. 	Shows examples of how to perform genomic analyses of CAGE dusters using core Bioconductor packages such as `r BiocStyle::Biocpkg("GenomicRanges")` and `r BiocStyle::Biocpkg("Biostrings")`. This part covers typical analyses made from CAGE data, from summarizing cluster annotation, TSS shapes and core promoter sequence analysis to more advanced spatial analyses (finding TSS-enhancer correlation links and clusters of enhancers).
 
-3. 	Shows how `CAGEfightR` can be used to prepare data for differential expression analysis with popular R packages, including `r BiocStyle::Biocpkg("DESeq2")`, `r BiocStyle::Biocpkg("limma")` and `r BiocStyle::Biocpkg("edgeR")` [@Love2014; @Ritchie2015a; @Robinson2010]. Borrowing from RNA-Seq terminology, differential expression can be assessed at multiple different levels: Tag cluster- and enhancer-level, gene-level and differential TSS usage[@Soneson2016]. Once differential expression results have been obtained, they can be combined with other sources of information such as motifs from JASPAR [@Mathelier2016] and GO/KEGG terms[Hancock2014; Gene2019; @Qi2016].
+3. 	Shows how `CAGEfightR` can be used to prepare data for differential expression analysis with popular R packages, including `r BiocStyle::Biocpkg("DESeq2")`, `r BiocStyle::Biocpkg("limma")` and `r BiocStyle::Biocpkg("edgeR")` [@Love2014; @Ritchie2015a; @Robinson2010]. Borrowing from RNA-Seq terminology, differential expression can be assessed at multiple different levels: Tag cluster- and enhancer-level, gene-level and differential TSS usage[@Soneson2016]. Once differential expression results have been obtained, they can be combined with other sources of information such as motifs from JASPAR [@Mathelier2016] and GO/KEGG terms[@Hancock2014; @Gene2019; @Qi2016].
 
 ## Part 1: Locating, quantifying and annotating TSSs and enhancers
 
@@ -144,7 +169,8 @@ Before starting the analysis, we recommend gathering all information (Filenames,
 ```{r studyDesign}
 data(nanotubes)
 kable(nanotubes, 
-      caption = "The initial design matrix for the nanotubes experiment")
+      caption = "The initial design matrix for the nanotubes experiment") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 ### Importing CTSSs
@@ -351,6 +377,7 @@ plotTracks(list(axis_track,
            chromosome = seqnames(plot_region))
 ```
 
+
 The top track shows the pooled CTSS signal and the middle track shows the identified TC with the thick bar indicating the TSS peak (the overall most used CTSSs within the TC). The bottom track shows the known transcript model at this genomic location. In this case, the CAGE-defined TSS corresponds well to the annotation.
 
 We can also plot the first enhancer:
@@ -387,6 +414,7 @@ plotTracks(list(axis_track,
            to=end(plot_region), 
            chromosome = as.character(seqnames(plot_region)))
 ```
+
 
 Here we see the bidirectional pattern characteristic of active enhancers. The bidirectional cluster is seen in the middle track, with the midpoint in thick marking the maximally balanced point within the bidirectional cluster.
 
@@ -673,7 +701,8 @@ RSE$Batch <- factor(batch_var)
 RSE %>%
     colData() %>%
     subset(select=c(Class, Batch)) %>%
-    kable(caption = "Design matrix after adding new batch covariate.")
+    kable(caption = "Design matrix after adding new batch covariate.") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 An alternative to manually defining the batch variable, tools such as `r BiocStyle::Biocpkg("sva")` and `r BiocStyle::Biocpkg("RUVSeq")` can be used to estimate unknown batch effects from the data.
@@ -711,7 +740,8 @@ res %>%
                   baseMean, 
                   log2FoldChange, 
                   padj) %>%
-    kable(caption = "Top differentially expressed TSS and enhancer candidates")
+    kable(caption = "Top differentially expressed TSS and enhancer candidates") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 It always a good idea to inspect a few diagnostics plot to make sure the `DESeq2` analysis was successful. One such example is an MA-plot (another useful plot is p-value histogram):
@@ -850,7 +880,7 @@ Of course, this is a just a very quick and simple analysis of motif enrichment. 
 
 ### Gene-level differential expression
 
-While CAGE data is naturally analyzed at the level of clusters (TSSs and enhancers) it is in many cases interesting to also look at gene-level expression estimates. A prime example of this is looking at enrichment of Gene Ontology (GO) and Kyoto Encyclopedia of Genes and Genomes (KEGG) terms [Hancock2014; Gene2019; @Qi2016] which are only defined at gene-level. `CAGEfightR` includes functions for annotating clusters with gene models and summarizing expression to gene-level.
+While CAGE data is naturally analyzed at the level of clusters (TSSs and enhancers) it is in many cases interesting to also look at gene-level expression estimates. A prime example of this is looking at enrichment of Gene Ontology (GO) and Kyoto Encyclopedia of Genes and Genomes (KEGG) terms [@Hancock2014; @Gene2019; @Qi2016] which are only defined at gene-level. `CAGEfightR` includes functions for annotating clusters with gene models and summarizing expression to gene-level.
 
 We can annotate clusters with gene IDs in the same manner as Transcript IDs:
 
@@ -919,14 +949,16 @@ We can the both report the overall summary of differential gene expression, and 
 # Global summary
 dt %>% 
     summary %>% 
-    kable(caption="Global summary of differentially expressed genes.")
+    kable(caption="Global summary of differentially expressed genes.") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 ```{r limmaTop}
 # Inspect top htis
 topTable(eb, coef="ClassNano") %>%
     dplyr::select(symbol, nClusters, AveExpr, logFC, adj.P.Val) %>%
-    kable(caption="Top differentially expressed genes.")
+    kable(caption="Top differentially expressed genes.") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 ### Enrichment of GO- and KEGG-terms
@@ -941,7 +973,8 @@ GO <- goana(eb, coef = "ClassNano", species = "Mm", trend = TRUE)
 
 # Show top hits
 topGO(GO, ontology = "BP", number = 10) %>%
-	kable(caption="Top enriched or depleted GO-terms.")
+	kable(caption="Top enriched or depleted GO-terms.") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 And similarly for KEGG terms:
@@ -952,7 +985,8 @@ KEGG <- kegga(eb, coef="ClassNano", species = "Mm", trend = TRUE)
 
 # Show top hits
 topKEGG(KEGG, number = 10) %>%
-	knitr::kable(caption="Top enriched of depleted KEGG-terms.")
+	knitr::kable(caption="Top enriched of depleted KEGG-terms.") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 Both analyses indicate that genes related to the inflammatory response and defense response are upregulated following nanotube exposure. This supports the hypothesis that nanotube induces a response similar to asbestos.
@@ -1043,7 +1077,8 @@ Now we can look at differential TSS usage at two-levels: Whether an individual T
 ```{r dtuTSS}
 dtu_TSSs <- topSpliceDGE(ds, test = "exon")
 dplyr::select(dtu_TSSs, txType, geneID, symbol, logFC, FDR) %>%
-    kable(caption = "Top differentially used TSSs")
+    kable(caption = "Top differentially used TSSs") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 The interpretation of log fold changes here is slightly different from before: These log fold changes are relative to the overall log fold change for all TSSs in that gene. 
@@ -1053,7 +1088,8 @@ Then we can look at results for each gene (Gene-level differential TSS usage):
 dtu_genes <- topSpliceDGE(ds, test = "Simes")
 dplyr::select(dtu_genes, geneID, symbol, NExons, FDR) %>%
     kable(row.names = FALSE, 
-          caption = "Top genes showing any differential TSS usage.")
+          caption = "Top genes showing any differential TSS usage.") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 We see that the two lists agree, which is not surprising given that the gene-level results are obtained by aggregating TSS-level p-values across genes.
