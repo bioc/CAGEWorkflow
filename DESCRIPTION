@@ -1,7 +1,7 @@
 Package: CAGEWorkflow
 Type: Package
 Title: A step-by-step guide to analyzing CAGE data using R/Bioconductor
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: person("Malte", "Thodberg", email = "maltethodberg@gmail.com", role = c("aut", "cre"))
 Description: Workflow for analyzing Cap Analysis of Gene Expression (CAGE) data using R/Bioconductor.
 License: GPL-3
@@ -9,11 +9,13 @@ Encoding: UTF-8
 LazyData: FALSE
 Depends:
     R (>= 3.6.0),
+    CAGEfightR,
     nanotubes
 Suggests: 
     knitr,
     kableExtra,
     rmarkdown,
+    BiocStyle,
     BiocWorkflowTools,
     pheatmap,
     ggseqlogo,
@@ -23,7 +25,6 @@ Suggests:
     ggthemes,
     tidyverse,
     dplyr,
-    CAGEfightR,
     GenomicRanges,
     SummarizedExperiment,
     GenomicFeatures,
