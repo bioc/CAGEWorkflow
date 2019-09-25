@@ -166,7 +166,7 @@ The workflow is divided into 3 parts covering different parts of a typical CAGE 
 
 Before starting the analysis, we recommend gathering all information (Filenames, groups, batches, preparation data, etc.) about the samples to be analyzed in a single `data.frame`, often called the _design matrix_. `CAGEfightR` can keep track of the design matrix throughout the analysis:
 
-```{r studyDesign, eval=FALSE}
+```{r studyDesign, eval=TRUE}
 kable(nanotubes, 
       caption = "The initial design matrix for the nanotubes experiment") %>%
     kable_styling(latex_options = "hold_position")
