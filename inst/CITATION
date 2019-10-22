@@ -1,0 +1,16 @@
+citHeader("To cite CAGEWorkflow in publications use:")
+
+citEntry(entry="article",
+         title = "A step-by-step guide to analyzing CAGE data using R/Bioconductor.",
+         author = personList(as.person("Malte Thodberg"),
+                             as.person("Albin Sandelin")),
+         year = 2019,
+         journal = "F1000Research",
+         doi = "10.12688/f1000research.18456.1",
+         volume = 8,
+         issue = 2046-1402,
+         pages = 886,
+         textVersion =
+         paste("Thodberg et al,",
+               "A step-by-step guide to analyzing CAGE data using R/Bioconductor,",
+                "F1000Research 2019, 8:886") )

@@ -1,0 +1,4 @@
+CHANGES IN VERSION 1.1.5:
+	- Updated main text with suggestions from F1000 reviewers.
+	- Added F1000 paper as citation.
+	- Slightly updated code examples to be compliant with new Bioconductor release.
