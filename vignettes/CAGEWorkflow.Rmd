@@ -1,6 +1,8 @@
 ---
 title: "A step-by-step guide to analyzing CAGE data using R/Bioconductor"
 author:
+- affiliation: Hematogenomics, Faculty of Medicine, Lund University
+  name: Malte Thodberg
 - affiliation: Department of Biology and Biotech Research and Innovation Centre, University of Copenhagen
   name: Albin Sandelin
 Maintainer: Malte Thodberg <maltethodberg@gmail.com>
@@ -52,7 +54,7 @@ Bioconductor contains a vast collection of tools for analyzing transcriptomics d
 
 |  Analysis|  icetea|  TSRchitect|  CAGEr|  CAGEfightR|
 |--:|--:|--:|--:|--:|
-|  Simplest input|  FASTQ|  BAM|  BAM|  BigWig|
+|  Simplest input|  FASTQ|  BAM|  BAM|  BigWig/bedGraph|
 |  Paired-end input |  +|  +|  -|  -|
 |  CTSS extraction |  -|  +|  +|  -|
 |  TSS calling|  Sliding window|  X-means|  Distance or Paraclu|  Slice-reduce|
@@ -1023,7 +1025,10 @@ KEGG-terms represent well defined pathways. We can use the `r BiocStyle::Biocpkg
 
 ```{r pathview, message = FALSE, fig.width=6, fig.height=6, fig.cap="Detailed view of differentially expressed genes in the KEGG TNF signalling pathway."}
 # Format DE genes for pathview
-DE_genes <- Filter(function(x) x != 0, dt[, "ClassNano"])
+DE_genes <- dt[, "ClassNano"] %>%
+    as.integer() %>%
+    set_names(rownames(dt)) %>%
+    Filter(f=function(x) x != 0, x=.)
 
 # Run pathview; this will save a png file to a temporary directory
 pathview(DE_genes, 
