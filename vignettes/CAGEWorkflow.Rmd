@@ -94,8 +94,6 @@ This workflow uses a large number of R-packages: Bioconductor packages are prima
 
 ```{r packages, results='hide', message=FALSE, warning=FALSE}
 # CRAN packages for data manipulation and plotting
-library(knitr)
-library(kableExtra)
 library(pheatmap)
 library(ggseqlogo)
 library(viridis)
@@ -169,9 +167,9 @@ The workflow is divided into 3 parts covering different parts of a typical CAGE 
 Before starting the analysis, we recommend gathering all information (Filenames, groups, batches, preparation data, etc.) about the samples to be analyzed in a single `data.frame`, often called the _design matrix_. `CAGEfightR` can keep track of the design matrix throughout the analysis:
 
 ```{r studyDesign, eval=TRUE}
-kable(nanotubes, 
+knitr::kable(nanotubes, 
       caption = "The initial design matrix for the nanotubes experiment") %>%
-    kable_styling(latex_options = "hold_position")
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 ### Obtaining CTSSs
@@ -723,8 +721,8 @@ RSE$Batch <- factor(batch_var)
 RSE %>%
     colData() %>%
     subset(select = c(Class, Batch)) %>%
-    kable(caption = "Design matrix after adding new batch covariate.") %>%
-    kable_styling(latex_options = "hold_position")
+    knitr::kable(caption = "Design matrix after adding new batch covariate.") %>%
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 As an alternative to manually defining the batch variable, tools such as `r BiocStyle::Biocpkg("sva")` and `r BiocStyle::Biocpkg("RUVSeq")` can be used to estimate unknown batch effects from the data.
@@ -762,8 +760,8 @@ res %>%
                   baseMean, 
                   log2FoldChange, 
                   padj) %>%
-    kable(caption = "Top differentially expressed TSS and enhancer candidates") %>%
-    kable_styling(latex_options = "hold_position")
+    knitr::kable(caption = "Top differentially expressed TSS and enhancer candidates") %>%
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 It always a good idea to inspect a few diagnostics plots to make sure the `DESeq2` analysis was successful. One such example is an MA-plot (another useful plot is the p-value histogram):
@@ -979,16 +977,16 @@ We can then report both an overall summary of differential gene expression, and 
 # Global summary
 dt %>% 
     summary() %>% 
-    kable(caption = "Global summary of differentially expressed genes.") %>%
-    kable_styling(latex_options = "hold_position")
+    knitr::kable(caption = "Global summary of differentially expressed genes.") %>%
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 ```{r limmaTop}
 # Inspect top htis
 topTable(eb, coef = "ClassNano") %>%
     dplyr::select(symbol, nClusters, AveExpr, logFC, adj.P.Val) %>%
-    kable(caption = "Top differentially expressed genes.") %>%
-    kable_styling(latex_options = "hold_position")
+    knitr::kable(caption = "Top differentially expressed genes.") %>%
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 ### Enrichment of GO- and KEGG-terms
@@ -1003,8 +1001,8 @@ GO <- goana(eb, coef = "ClassNano", species = "Mm", trend = TRUE)
 
 # Show top hits
 topGO(GO, ontology = "BP", number = 10) %>%
-	kable(caption = "Top enriched or depleted GO-terms.") %>%
-    kable_styling(latex_options = "hold_position")
+	knitr::kable(caption = "Top enriched or depleted GO-terms.") %>%
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 And similarly for KEGG terms we can use `kegga`:
@@ -1016,7 +1014,7 @@ KEGG <- kegga(eb, coef = "ClassNano", species = "Mm", trend = TRUE)
 # Show top hits
 topKEGG(KEGG, number = 10) %>%
 	knitr::kable(caption = "Top enriched or depleted KEGG-terms.") %>%
-    kable_styling(latex_options = "hold_position")
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 Both analyses indicate that genes related to the inflammatory response and defense response are upregulated following nanotube exposure (similar enrichments were seen by Bornholdt _et al_ in the original study). This supports the hypothesis that nanotubes induce a response similar to asbestos. 
@@ -1113,8 +1111,8 @@ We can look at DTU at two-levels: Whether an individual TSS candidate shows DTU 
 ```{r dtuTSS}
 dtu_TSSs <- topSpliceDGE(ds, test = "exon")
 dplyr::select(dtu_TSSs, txType, geneID, symbol, logFC, FDR) %>%
-    kable(caption = "Top differentially used TSSs") %>%
-    kable_styling(latex_options = "hold_position")
+    knitr::kable(caption = "Top differentially used TSSs") %>%
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 The interpretation of log fold changes here is slightly different from before: These log fold changes are relative to the overall log fold change for all TSS candidates in that gene. 
@@ -1123,9 +1121,9 @@ Then we can look at results for each gene (gene-level DTU):
 ```{r dtuGene}
 dtu_genes <- topSpliceDGE(ds, test = "Simes")
 dplyr::select(dtu_genes, geneID, symbol, NExons, FDR) %>%
-    kable(row.names = FALSE, 
+    knitr::kable(row.names = FALSE, 
           caption = "Top genes showing any differential TSS usage.") %>%
-    kable_styling(latex_options = "hold_position")
+    kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
 We see that the two lists agree, which is not surprising given that the gene-level results are obtained by aggregating TSS-level p-values across genes.
