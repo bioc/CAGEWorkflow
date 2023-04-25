@@ -1,7 +1,7 @@
 Package: CAGEWorkflow
 Type: Package
 Title: A step-by-step guide to analyzing CAGE data using R/Bioconductor
-Version: 1.15.0
+Version: 1.16.0
 Authors@R: person("Malte", "Thodberg", email = "maltethodberg@gmail.com", role = c("aut", "cre"))
 Description: Workflow for analyzing Cap Analysis of Gene Expression (CAGE) data using R/Bioconductor.
 License: GPL-3
